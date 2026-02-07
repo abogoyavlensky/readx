@@ -8,10 +8,10 @@
             [reitit.frontend.easy :as reitit-easy]))
 
 (def ^:const DEFAULT-DEMO-TEXT
-  (str "Reading is the complex cognitive process of decoding symbols to derive meaning. ")
-  "It is a form of language processing. Success in this process is measured "
-  "as reading comprehension. Reading is a means for language acquisition, "
-  "communication, and sharing information and ideas.")
+  (str "Reading is the complex cognitive process of decoding symbols to derive meaning. "
+       "It is a form of language processing. Success in this process is measured "
+       "as reading comprehension. Reading is a means for language acquisition, "
+       "communication, and sharing information and ideas."))
 
 (defn- to-bionic
   "Convert `text` to bionic reading format.
@@ -136,9 +136,7 @@
         [:div
          [:label {:class "block text-sm font-semibold text-ink-muted uppercase tracking-wider mb-3"} "Bionic preview"]
          [:div {:class "bionic-result w-full h-72 bg-white border border-paper-dark rounded-xl p-6 leading-relaxed text-lg overflow-y-auto"
-                :dangerouslySetInnerHTML (when @demo-output {:__html @demo-output})}
-          (when-not @demo-output
-            [:span {:class "text-ink-muted italic"} "Click \"Convert\" to see the result..."])]]]
+                :dangerouslySetInnerHTML {:__html (or @demo-output "<span class='text-ink-muted italic'>Click &quot;Convert&quot; to see the result...</span>")}}]]]
 
        [:div {:class "text-center mt-8"}
         [:button {:class "inline-flex items-center gap-2.5 bg-ink text-paper font-semibold px-10 py-4 rounded-xl hover:bg-ink-light transition-colors text-base"
