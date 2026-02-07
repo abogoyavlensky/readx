@@ -44,13 +44,20 @@
    [:h1 {:class "font-display text-5xl md:text-6xl text-ink leading-tight"}
     "Make your books" [:br] [:span {:class "text-accent"} "easier to read"]]
    [:p {:class "mt-5 text-ink-light text-xl max-w-2xl mx-auto leading-relaxed"}
-    "Upload an EPUB, get it back with bionic reading styling. The "
-    [:b {:class "text-ink font-semibold"} "fir"] "st half of ea"
-    [:b {:class "text-ink font-semibold"} "ch"] " wo"
-    [:b {:class "text-ink font-semibold"} "rd"] " is bold"
-    [:b {:class "text-ink font-semibold"} "ed"] " so your ey"
-    [:b {:class "text-ink font-semibold"} "es"] " glide fast"
-    [:b {:class "text-ink font-semibold"} "er"] "."]])
+    "Upload an EPUB, get it back with bionic reading styling. "
+    [:b {:class "text-ink font-semibold"} "Th"] "e "
+    [:b {:class "text-ink font-semibold"} "fir"] "st "
+    [:b {:class "text-ink font-semibold"} "ha"] "lf "
+    [:b {:class "text-ink font-semibold"} "o"] "f "
+    [:b {:class "text-ink font-semibold"} "ea"] "ch "
+    [:b {:class "text-ink font-semibold"} "wo"] "rd "
+    [:b {:class "text-ink font-semibold"} "i"] "s "
+    [:b {:class "text-ink font-semibold"} "bol"] "ded "
+    [:b {:class "text-ink font-semibold"} "s"] "o "
+    [:b {:class "text-ink font-semibold"} "yo"] "ur "
+    [:b {:class "text-ink font-semibold"} "ey"] "es "
+    [:b {:class "text-ink font-semibold"} "gli"] "de "
+    [:b {:class "text-ink font-semibold"} "fas"] "ter."]])
 
 (defn- converter-section []
   (let [selected-file (r/atom nil)
