@@ -17,8 +17,8 @@
   "Convert `text` to bionic reading format.
   Bolds the first ceil(len/2) characters of each word."
   [text]
-  (str/replace text #"\b([A-Za-z\u00C0-\u024F]+)\b"
-               (fn [[word]]
+  (str/replace text #"[A-Za-z\u00C0-\u024F]+"
+               (fn [word]
                  (let [bold-len (js/Math.ceil (/ (count word) 2))]
                    (str "<b>" (subs word 0 bold-len) "</b>" (subs word bold-len))))))
 
@@ -26,7 +26,7 @@
 
 (defn- header-section []
   [:header {:class "border-b border-paper-dark"}
-   [:div {:class "max-w-4xl mx-auto px-6 py-5 flex items-center justify-between"}
+   [:div {:class "max-w-5xl mx-auto px-6 py-5 flex items-center justify-between"}
     [:a {:href "/"
          :class "flex items-center gap-3"}
      [icons/logo]
@@ -40,7 +40,7 @@
      [icons/github]]]])
 
 (defn- hero-section []
-  [:div {:class "max-w-4xl mx-auto px-6 pt-14 pb-2 text-center"}
+  [:div {:class "max-w-5xl mx-auto px-6 pt-14 pb-2 text-center"}
    [:h1 {:class "font-display text-5xl md:text-6xl text-ink leading-tight"}
     "Make your books" [:br] [:span {:class "text-accent"} "easier to read"]]
    [:p {:class "mt-5 text-ink-light text-xl max-w-2xl mx-auto leading-relaxed"}
@@ -65,7 +65,7 @@
         drag-over? (r/atom false)
         file-input-ref (r/atom nil)]
     (fn []
-      [:section {:class "max-w-4xl mx-auto px-6 py-10"}
+      [:section {:class "max-w-5xl mx-auto px-6 py-10"}
        [:div {:class "bg-white rounded-2xl shadow-sm border border-paper-dark p-8 md:p-12"}
 
         ; Upload zone
@@ -126,7 +126,7 @@
   (let [demo-input (r/atom DEFAULT-DEMO-TEXT)
         demo-output (r/atom nil)]
     (fn []
-      [:section {:class "max-w-4xl mx-auto px-6 py-14"}
+      [:section {:class "max-w-5xl mx-auto px-6 py-14"}
        [:div {:class "text-center mb-10"}
         [:h2 {:class "font-display text-3xl md:text-4xl text-ink"} "Try it out"]
         [:p {:class "text-ink-muted text-lg mt-3"} "Paste any text below to preview the bionic reading effect."]]
@@ -135,15 +135,15 @@
         ; Input
         [:div
          [:label {:class "block text-sm font-semibold text-ink-muted uppercase tracking-wider mb-3"} "Original text"]
-         [:textarea {:class "w-full h-72 bg-white border border-paper-dark rounded-xl p-6 text-ink leading-relaxed resize-none font-body text-lg placeholder:text-ink-muted"
+         [:textarea {:class "w-full h-80 bg-white border border-paper-dark rounded-xl p-6 text-ink leading-loose resize-none font-body text-xl placeholder:text-ink-muted"
                      :placeholder "Type or paste text here..."
                      :value @demo-input
                      :on-change #(reset! demo-input (-> % .-target .-value))}]]
         ; Output
         [:div
          [:label {:class "block text-sm font-semibold text-ink-muted uppercase tracking-wider mb-3"} "Bionic preview"]
-         [:div {:class "bionic-result w-full h-72 bg-white border border-paper-dark rounded-xl p-6 leading-relaxed text-lg overflow-y-auto"
-                :dangerouslySetInnerHTML {:__html (or @demo-output "<span class='text-ink-muted italic'>Click &quot;Convert&quot; to see the result...</span>")}}]]]
+         [:div {:class "bionic-result w-full h-80 bg-white border border-paper-dark rounded-xl p-6 leading-loose text-xl overflow-y-auto"
+                :dangerouslySetInnerHTML {:__html (or @demo-output "<span class='text-ink-muted italic text-lg'>Click &quot;Convert&quot; to see the result...</span>")}}]]]
 
        [:div {:class "text-center mt-8"}
         [:button {:class "inline-flex items-center gap-2.5 bg-ink text-paper font-semibold px-10 py-4 rounded-xl hover:bg-ink-light transition-colors text-base"
@@ -160,7 +160,7 @@
 
 (defn- footer-section []
   [:footer {:class "border-t border-paper-dark"}
-   [:div {:class "max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3"}
+   [:div {:class "max-w-5xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3"}
     [:p {:class "text-ink-muted text-sm"}
      "Built by "
      [:a {:href "https://github.com"
@@ -202,7 +202,7 @@
    [:main {:class "flex-1"}
     [hero-section]
     [converter-section]
-    [:div {:class "max-w-2xl mx-auto px-6"}
+    [:div {:class "max-w-3xl mx-auto px-6"}
      [:div {:class "divider"}]]
     [demo-section]]
    [footer-section]])
