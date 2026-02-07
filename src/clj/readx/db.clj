@@ -1,6 +1,5 @@
 (ns readx.db
-  (:require [readx.utils.config :as config]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [hikari-cp.core :as cp]
             [honey.sql :as honey]
             [integrant.core :as ig]
@@ -9,7 +8,8 @@
             [next.jdbc.date-time]
             [next.jdbc.result-set :as jdbc-rs]
             [ragtime.next-jdbc :as ragtime-jdbc]
-            [ragtime.repl :as ragtime-repl]))
+            [ragtime.repl :as ragtime-repl]
+            [readx.utils.config :as config]))
 
 ; Common functions
 

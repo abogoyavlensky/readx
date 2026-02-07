@@ -1,8 +1,8 @@
 (ns readx.health-test
-  (:require [readx.server :as-alias server]
-            [readx.test-utils :as utils]
-            [clj-http.client :as http]
-            [clojure.test :refer :all]))
+  (:require [clj-http.client :as http]
+            [clojure.test :refer :all]
+            [readx.server :as-alias server]
+            [readx.test-utils :as utils]))
 
 (use-fixtures :once
   (utils/with-system))

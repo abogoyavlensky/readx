@@ -1,9 +1,9 @@
 (ns readx.views
   (:require [clojure.string :as str]
-            [reagent.core :as r]
+            [re-frame.core :as re-frame]
             [readx.router :as-alias ui-router]
             [readx.subs :as subs]
-            [re-frame.core :as re-frame]
+            [reagent.core :as r]
             [reitit.frontend.easy :as reitit-easy]))
 
 (def ^:const DEFAULT-DEMO-TEXT
@@ -14,57 +14,139 @@
   Bolds the first ceil(len/2) characters of each word."
   [text]
   (str/replace text #"\b([A-Za-z\u00C0-\u024F]+)\b"
-    (fn [[word]]
-      (let [bold-len (js/Math.ceil (/ (count word) 2))]
-        (str "<b>" (subs word 0 bold-len) "</b>" (subs word bold-len))))))
+               (fn [[word]]
+                 (let [bold-len (js/Math.ceil (/ (count word) 2))]
+                   (str "<b>" (subs word 0 bold-len) "</b>" (subs word bold-len))))))
 
 ; SVG icon components
 
 (defn- logo-icon []
-  [:svg {:class "w-8 h-8 text-accent" :viewBox "0 0 32 32" :fill "none" :xmlns "http://www.w3.org/2000/svg"}
+  [:svg {:class "w-8 h-8 text-accent"
+         :viewBox "0 0 32 32"
+         :fill "none"
+         :xmlns "http://www.w3.org/2000/svg"}
    [:path {:d "M6 4C6 2.89543 6.89543 2 8 2H20L26 8V28C26 29.1046 25.1046 30 24 30H8C6.89543 30 6 29.1046 6 28V4Z"
-           :fill "currentColor" :opacity "0.15"}]
+           :fill "currentColor"
+           :opacity "0.15"}]
    [:path {:d "M8 2H20L26 8V28C26 29.1046 25.1046 30 24 30H8C6.89543 30 6 29.1046 6 28V4C6 2.89543 6.89543 2 8 2Z"
-           :stroke "currentColor" :stroke-width "1.8"}]
-   [:path {:d "M20 2V8H26" :stroke "currentColor" :stroke-width "1.8"}]
-   [:line {:x1 "10" :y1 "14" :x2 "22" :y2 "14" :stroke "currentColor" :stroke-width "2.2" :stroke-linecap "round"}]
-   [:line {:x1 "10" :y1 "18.5" :x2 "19" :y2 "18.5" :stroke "currentColor" :stroke-width "1.4" :opacity "0.45" :stroke-linecap "round"}]
-   [:line {:x1 "10" :y1 "22" :x2 "22" :y2 "22" :stroke "currentColor" :stroke-width "2.2" :stroke-linecap "round"}]
-   [:line {:x1 "10" :y1 "26" :x2 "16" :y2 "26" :stroke "currentColor" :stroke-width "1.4" :opacity "0.45" :stroke-linecap "round"}]])
+           :stroke "currentColor"
+           :stroke-width "1.8"}]
+   [:path {:d "M20 2V8H26"
+           :stroke "currentColor"
+           :stroke-width "1.8"}]
+   [:line {:x1 "10"
+           :y1 "14"
+           :x2 "22"
+           :y2 "14"
+           :stroke "currentColor"
+           :stroke-width "2.2"
+           :stroke-linecap "round"}]
+   [:line {:x1 "10"
+           :y1 "18.5"
+           :x2 "19"
+           :y2 "18.5"
+           :stroke "currentColor"
+           :stroke-width "1.4"
+           :opacity "0.45"
+           :stroke-linecap "round"}]
+   [:line {:x1 "10"
+           :y1 "22"
+           :x2 "22"
+           :y2 "22"
+           :stroke "currentColor"
+           :stroke-width "2.2"
+           :stroke-linecap "round"}]
+   [:line {:x1 "10"
+           :y1 "26"
+           :x2 "16"
+           :y2 "26"
+           :stroke "currentColor"
+           :stroke-width "1.4"
+           :opacity "0.45"
+           :stroke-linecap "round"}]])
 
 (defn- github-icon []
-  [:svg {:class "w-6 h-6" :fill "currentColor" :viewBox "0 0 24 24"}
+  [:svg {:class "w-6 h-6"
+         :fill "currentColor"
+         :viewBox "0 0 24 24"}
    [:path {:d "M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"}]])
 
 (defn- upload-icon []
-  [:svg {:class "w-12 h-12 mx-auto text-ink-muted mb-4" :fill "none" :viewBox "0 0 48 48" :stroke "currentColor" :stroke-width "1.5"}
-   [:path {:d "M14 30L24 20L34 30" :stroke-linecap "round" :stroke-linejoin "round"}]
-   [:path {:d "M24 20V42" :stroke-linecap "round"}]
-   [:path {:d "M40 30V38C40 40.2091 38.2091 42 36 42H12C9.79086 42 8 40.2091 8 38V30" :stroke-linecap "round"}]
-   [:rect {:x "16" :y "6" :width "16" :height "4" :rx "1" :fill "currentColor" :opacity "0.2"}]])
+  [:svg {:class "w-12 h-12 mx-auto text-ink-muted mb-4"
+         :fill "none"
+         :viewBox "0 0 48 48"
+         :stroke "currentColor"
+         :stroke-width "1.5"}
+   [:path {:d "M14 30L24 20L34 30"
+           :stroke-linecap "round"
+           :stroke-linejoin "round"}]
+   [:path {:d "M24 20V42"
+           :stroke-linecap "round"}]
+   [:path {:d "M40 30V38C40 40.2091 38.2091 42 36 42H12C9.79086 42 8 40.2091 8 38V30"
+           :stroke-linecap "round"}]
+   [:rect {:x "16"
+           :y "6"
+           :width "16"
+           :height "4"
+           :rx "1"
+           :fill "currentColor"
+           :opacity "0.2"}]])
 
 (defn- file-ready-icon []
-  [:svg {:class "w-12 h-12 mx-auto text-accent mb-4" :fill "none" :viewBox "0 0 48 48"}
-   [:rect {:x "12" :y "4" :width "24" :height "40" :rx "3" :stroke "currentColor" :stroke-width "1.5" :fill "currentColor" :fill-opacity "0.08"}]
-   [:path {:d "M18 16h12M18 22h12M18 28h8" :stroke "currentColor" :stroke-width "1.5" :stroke-linecap "round"}]
-   [:circle {:cx "36" :cy "36" :r "9" :fill "#E8F5E9" :stroke "#4CAF50" :stroke-width "1.5"}]
-   [:path {:d "M32 36L35 39L40 33" :stroke "#4CAF50" :stroke-width "1.8" :stroke-linecap "round" :stroke-linejoin "round" :fill "none"}]])
+  [:svg {:class "w-12 h-12 mx-auto text-accent mb-4"
+         :fill "none"
+         :viewBox "0 0 48 48"}
+   [:rect {:x "12"
+           :y "4"
+           :width "24"
+           :height "40"
+           :rx "3"
+           :stroke "currentColor"
+           :stroke-width "1.5"
+           :fill "currentColor"
+           :fill-opacity "0.08"}]
+   [:path {:d "M18 16h12M18 22h12M18 28h8"
+           :stroke "currentColor"
+           :stroke-width "1.5"
+           :stroke-linecap "round"}]
+   [:circle {:cx "36"
+             :cy "36"
+             :r "9"
+             :fill "#E8F5E9"
+             :stroke "#4CAF50"
+             :stroke-width "1.5"}]
+   [:path {:d "M32 36L35 39L40 33"
+           :stroke "#4CAF50"
+           :stroke-width "1.8"
+           :stroke-linecap "round"
+           :stroke-linejoin "round"
+           :fill "none"}]])
 
 (defn- bolt-icon []
-  [:svg {:class "w-5 h-5" :fill "none" :viewBox "0 0 24 24" :stroke "currentColor" :stroke-width "2"}
-   [:path {:d "M13 10V3L4 14h7v7l9-11h-7z" :stroke-linecap "round" :stroke-linejoin "round"}]])
+  [:svg {:class "w-5 h-5"
+         :fill "none"
+         :viewBox "0 0 24 24"
+         :stroke "currentColor"
+         :stroke-width "2"}
+   [:path {:d "M13 10V3L4 14h7v7l9-11h-7z"
+           :stroke-linecap "round"
+           :stroke-linejoin "round"}]])
 
 ; Page sections
 
 (defn- header-section []
   [:header {:class "border-b border-paper-dark"}
    [:div {:class "max-w-4xl mx-auto px-6 py-5 flex items-center justify-between"}
-    [:a {:href "/" :class "flex items-center gap-3"}
+    [:a {:href "/"
+         :class "flex items-center gap-3"}
      [logo-icon]
      [:span {:class "font-display text-2xl tracking-tight text-ink"}
       "Read" [:span {:class "text-accent"} "X"]]]
-    [:a {:href "https://github.com" :target "_blank" :rel "noopener noreferrer"
-         :class "text-ink-muted hover:text-ink transition-colors" :title "GitHub"}
+    [:a {:href "https://github.com"
+         :target "_blank"
+         :rel "noopener noreferrer"
+         :class "text-ink-muted hover:text-ink transition-colors"
+         :title "GitHub"}
      [github-icon]]]])
 
 (defn- hero-section []
@@ -105,7 +187,9 @@
                             (when (and file (str/ends-with? (.-name file) ".epub"))
                               (reset! selected-file (.-name file))
                               (reset! convert-state :idle))))}
-         [:input {:type "file" :accept ".epub" :class "hidden"
+         [:input {:type "file"
+                  :accept ".epub"
+                  :class "hidden"
                   :ref #(reset! file-input-ref %)
                   :on-change (fn [e]
                                (when-let [file (-> e .-target .-files (aget 0))]
@@ -173,9 +257,9 @@
                                 (if (str/blank? text)
                                   (reset! demo-output nil)
                                   (reset! demo-output
-                                    (->> (str/split-lines text)
-                                         (map #(if (str/blank? %) "" (to-bionic %)))
-                                         (str/join "<br>"))))))}
+                                          (->> (str/split-lines text)
+                                               (map #(if (str/blank? %) "" (to-bionic %)))
+                                               (str/join "<br>"))))))}
          [bolt-icon]
          "Convert Demo Text"]]])))
 
@@ -184,7 +268,9 @@
    [:div {:class "max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3"}
     [:p {:class "text-ink-muted text-sm"}
      "Built by "
-     [:a {:href "https://github.com" :target "_blank" :rel "noopener noreferrer"
+     [:a {:href "https://github.com"
+          :target "_blank"
+          :rel "noopener noreferrer"
           :class "text-ink-light hover:text-accent transition-colors font-medium"} "Andrew"]]
     [:p {:class "text-ink-muted text-sm"}
      "ReadX \u2014 Bionic reading for your EPUB library"]]])

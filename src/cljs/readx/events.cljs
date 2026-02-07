@@ -1,10 +1,10 @@
 (ns readx.events
-  (:require [readx.db :as db]
-            ; import http-fx to register http-xhrio fx
-            [day8.re-frame.http-fx]
-            [re-frame.core :as re-frame]
-            [reitit.frontend.controllers :as rfc]
-            [reitit.frontend.easy :as reitit-easy]))
+  (:require ; import http-fx to register http-xhrio fx
+    [day8.re-frame.http-fx]
+    [re-frame.core :as re-frame]
+    [readx.db :as db]
+    [reitit.frontend.controllers :as rfc]
+    [reitit.frontend.easy :as reitit-easy]))
 
 (re-frame/reg-event-db
   ::initialize-db

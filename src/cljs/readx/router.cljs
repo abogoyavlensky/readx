@@ -1,7 +1,7 @@
 (ns readx.router
-  (:require [readx.events :as events]
+  (:require [re-frame.core :as re-frame]
+            [readx.events :as events]
             [readx.views :as views]
-            [re-frame.core :as re-frame]
             [reitit.coercion.malli :as reitit-malli]
             [reitit.frontend :as reitit-front]
             [reitit.frontend.easy :as reitit-easy]))

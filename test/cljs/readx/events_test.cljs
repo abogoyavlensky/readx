@@ -1,9 +1,9 @@
 (ns readx.events-test
-  (:require [readx.events :as events]
-            [readx.subs :as subs]
-            [cljs.test :refer [is deftest]]
+  (:require [cljs.test :refer [is deftest]]
             [day8.re-frame.test :as rf-test]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [readx.events :as events]
+            [readx.subs :as subs]))
 
 (deftest test-initialize-db
   (rf-test/run-test-sync

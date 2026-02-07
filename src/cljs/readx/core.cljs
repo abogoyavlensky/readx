@@ -1,9 +1,9 @@
 (ns readx.core
-  (:require [readx.events :as events]
+  (:require [re-frame.core :as re-frame]
+            [readx.events :as events]
             [readx.router :as router]
             [readx.subs]  ; import for cljs compiler
             [readx.views :as views]
-            [re-frame.core :as re-frame]
             [reagent.dom.client :as reagent]))
 
 (defonce ^:private ROOT

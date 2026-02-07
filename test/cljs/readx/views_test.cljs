@@ -1,7 +1,7 @@
 (ns readx.views-test
-  (:require [readx.views :as views]
-            [cljs.test :refer [deftest is]]
-            [clojure.string :as str]))
+  (:require [cljs.test :refer [deftest is]]
+            [clojure.string :as str]
+            [readx.views :as views]))
 
 (deftest test-home-view-returns-hiccup
   (let [result (views/home-view {})]

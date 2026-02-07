@@ -1,9 +1,9 @@
 (ns readx.test-utils
-  (:require [readx.db :as db]
+  (:require [clj-reload.core :as reload]
+            [integrant.core :as ig]
+            [readx.db :as db]
             [readx.server :as server]
-            [readx.utils.config :as config]
-            [clj-reload.core :as reload]
-            [integrant.core :as ig]))
+            [readx.utils.config :as config]))
 
 ; TODO: check if needed!
 (def ^:const TEST-CSRF-TOKEN "test-csrf-token")

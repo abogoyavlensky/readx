@@ -25,17 +25,20 @@ body {
 }
 
 .upload-zone {
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%239B9285' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+  border: 2px dashed #9B9285;
+  border-radius: 12px;
   transition: all 0.3s ease;
 }
 
 .upload-zone.drag-over {
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23C45D3E' stroke-width='2.5' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+  border-color: #C45D3E;
+  border-width: 2.5px;
   background-color: rgba(196, 93, 62, 0.04);
 }
 
 .upload-zone.file-ready {
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23C45D3E' stroke-width='2' stroke-dasharray='1000' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+  border-style: solid;
+  border-color: #C45D3E;
 }
 
 .bionic-result b {
