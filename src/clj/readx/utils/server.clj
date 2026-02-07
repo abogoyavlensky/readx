@@ -146,7 +146,7 @@
     [:link {:href (manifest/asset "css/output.css")
             :rel "stylesheet"
             :type "text/css"}]
-    [:title "Clojure Stack SPA"]]
+    [:title "ReadX — Bionic Reading for EPUB"]]
    [:body
     [:div {:id "app"}]
     [:script {:src (manifest/asset "js/main.js")
