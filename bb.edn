@@ -1,0 +1,94 @@
+{:deps {io.github.abogoyavlensky/manifest-edn {:mvn/version "0.1.2"}
+        io.github.borkdude/carve {:git/sha "fdd1d0bc432f63db69e3a72167ef5e46f10dfba7"}
+        babashka/fs {:mvn/version "0.5.30"}}
+ :tasks
+ {:init (do
+          (def input-css-file "resources/public/css/input.css")
+          (def output-css-file "resources/public/css/output.css")
+          (def resources-hashed-dir "resources-hashed"))
+  :enter (println "Running task:" (:name (current-task)))
+
+  deps {:doc "Install all deps"
+        :task (do
+                (clojure "-P -X:dev")
+                (clojure "-P -X:test")
+                (clojure "-P -X:outdated")
+                (clojure "-P -X:build")
+                (clojure "-P -X:cljs")
+                (clojure "-P"))}
+
+  clj-repl {:doc "Run built-in Clojure REPL"
+            :task (shell "clj -A:dev:cljs:test")}
+
+  fmt-check {:doc "Check code formatting"
+             :task (shell "cljfmt" "check")}
+
+  fmt {:doc "Fix code formatting"
+       :task (shell "cljfmt" "fix")}
+
+  lint-import {:doc "Linting project's classpath"
+               :task (shell "clj-kondo" "--parallel" "--dependencies" "--copy-configs"
+                       "--lint" (with-out-str (clojure "-Spath")))}
+
+  lint {:doc "Linting project's code"
+        :task (shell "clj-kondo" "--parallel" "--lint" "src" "test")}
+
+  outdated-check {:doc "Check outdated Clojure deps versions"
+                  :task (clojure "-M:outdated")}
+
+  test {:doc "Run tests"
+        :task (clojure "-X:test")}
+
+  outdated {:doc "Upgrade outdated Clojure deps versions"
+            :task (clojure "-M:outdated --upgrade --force")}
+
+  css-watch {:doc "Rebuild css on file change in watch mode"
+             :task (shell "npx" "tailwindcss" "-i" input-css-file "-o" output-css-file "--watch")}
+
+  css-build {:doc "Build minified css"
+             :task (shell "npx" "tailwindcss" "-i" input-css-file "-o" output-css-file "--minify")}
+
+  js-watch {:doc "Watch and build JS assets using shadow-cljs"
+            :task (shell "npx shadow-cljs watch app")}
+
+  js-build {:doc "Build production JS assets using shadow-cljs"
+            :task (shell "npx shadow-cljs release app")}
+
+  -ui-dev {:depends [js-watch css-watch]}
+  ui-dev {:doc  "Run development frontend environment (JS and CSS watchers)"
+          :task (run '-ui-dev {:parallel true})}
+
+  ui-test {:doc "Run frontend tests using shadow-cljs"
+           :task (do
+                   (shell "npx shadow-cljs compile test")
+                   (shell "node out/test.js"))}
+
+  ui-test-watch {:doc "Run frontend tests using shadow-cljs in watch mode"
+                 :task (shell "npx shadow-cljs watch test")}
+
+  check {:doc "Run all code checks and tests"
+         :depends [fmt lint test ui-test]}
+
+  carve {:doc "Remove unused code"
+         :requires ([carve.api :as carve])
+         :task (carve/carve! {:paths ["src/clj" "src/cljc" "src/cljs"]
+                              :aggressive true
+                              :report true})}
+
+  build {:doc "Build application uberjar"
+         :requires ([manifest-edn.core :as manifest]
+                    [babashka.fs :as fs])
+         :task (do
+                 (fs/delete-tree resources-hashed-dir)
+                 (run 'css-build)
+                 (manifest/hash-assets! {:exclude-patterns ["js/.*"]
+                                         :resource-dir-target resources-hashed-dir})
+                 ; Clean shadow-cljs cache to force recompilation with new manifest
+                 (fs/delete-tree ".shadow-cljs")
+                 (run 'js-build)
+                 (manifest/hash-assets! {:include-patterns ["js/.*"]
+                                         :resource-dir-target resources-hashed-dir})
+                 (clojure "-T:build build"))}
+
+  kamal {:doc "Deploy application using Kamal"
+         :task (apply shell "kamal" (concat *command-line-args* ["--config-file" ".kamal/deploy.yml"]))}}}

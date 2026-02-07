@@ -1,0 +1,14 @@
+{
+  "name": "readx",
+  "short_name": "readx",
+  "start_url": "/",
+  // TODO: add domain of the project
+  "id": "https://readx.bogoyavlensky.com/",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/assets/images/icon@192px.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/assets/images/icon@512px.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" },
+    { "src": "/assets/images/icon@512px.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

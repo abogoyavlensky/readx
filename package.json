@@ -1,0 +1,16 @@
+{
+  "name": "readx",
+  "engines": {
+    "npm": ">=11.0.0 <12.0.0",
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.1.18",
+    "tailwindcss": "4.1.18",
+    "shadow-cljs": "3.3.4"
+  }
+}

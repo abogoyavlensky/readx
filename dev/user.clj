@@ -1,0 +1,59 @@
+(ns user
+  (:require [clj-reload.core :as reload]
+            [clojure.repl.deps :as repl-deps]
+            [malli.dev :as malli-dev]
+            [eftest.runner :as eftest]
+            [eftest.report.pretty :as eftest-report]
+            [integrant.repl :as ig-repl]
+            [integrant.repl.state :as state]
+            [readx.utils.config :as config]))
+
+(ig-repl/set-reload-options! {:dirs ["dev" "src/clj" "src/cljc" "test"], :file-pattern #"\.clj"})
+(malli-dev/start!)
+
+(defn reset
+  "Restart system."
+  []
+  (ig-repl/set-prep! #(config/read-config :dev "config.edn"))
+  (ig-repl/reset))
+
+(defn stop
+  "Stop system."
+  []
+  (ig-repl/halt))
+
+(defn run-tests
+  "Run all tests for the project or specific one."
+  ([]
+   (run-tests "test"))
+  ([param]
+   (reload/reload)
+   (eftest/run-tests (eftest/find-tests param) {:report eftest-report/report
+                                                :multithread? false})))
+
+(comment
+  ; It's convenient to bind shortcuts to these functions in your editor.
+  ; Start or restart system
+  (reset)
+  ; refresh code without restarting system
+  (reload/reload)
+  ; Check system state
+  (keys state/system)
+  ; Stop system
+  (stop)
+  ; Run all project tests
+  (run-tests)
+  (run-tests "test/readx/home_test.clj")
+  (run-tests 'readx.search-queries-test/test-preprocess-search-query-integration)
+
+  ; Example of add-lib dynamically
+  ; Sync all new libs at once
+  (repl-deps/sync-deps)
+  ; or sync a specific lib
+  (repl-deps/add-lib 'hiccup/hiccup {:mvn/version "2.0.0-RC3"}))
+
+(comment
+  ; Run in the cljs remote REPL to connect to shadow-cljs nREPL server
+  (require '[shadow.cljs.devtools.api])
+  (shadow.cljs.devtools.api/nrepl-select :app)
+  (shadow.cljs.devtools.api/nrepl-select :test))
