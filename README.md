@@ -16,12 +16,13 @@ mise trust && mise install
 First, run JS and CSS build in watch mode for local development:
 
 ```shell
+npm i
 bb ui-dev
 ```
 
 JS and CSS assets will be served from `http://localhost:8000/assets/` and will be automatically rebuilt on changes.
 
-In a separate terminal run server from built-in REPL:
+In a separate terminal or your editor run server from built-in REPL:
 
 > [!NOTE]
 > If you're using PostgreSQL, [Docker](https://docs.docker.com/engine/install/) should be installed
@@ -31,7 +32,7 @@ bb clj-repl
 (reset)
 ````
 
-The server should be available at `http://localhost:8000`.
+The API server should be available at `http://localhost:8000`.
 
 ## Project management
 
