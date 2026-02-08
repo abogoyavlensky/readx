@@ -1,7 +1,7 @@
 (ns readx.icons)
 
 (defn logo []
-  [:svg {:class "w-8 h-8 text-accent"
+  [:svg {:class "w-10 h-10 text-accent"
          :viewBox "0 0 32 32"
          :fill "none"
          :xmlns "http://www.w3.org/2000/svg"}

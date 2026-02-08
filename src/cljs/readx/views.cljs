@@ -14,13 +14,17 @@
        "communication, and sharing information and ideas."))
 
 (defn- to-bionic
-  "Convert `text` to bionic reading format.
+  "Convert `text` to bionic reading format as hiccup.
   Bolds the first ceil(len/2) characters of each word."
   [text]
-  (str/replace text #"[A-Za-z\u00C0-\u024F]+"
-               (fn [word]
-                 (let [bold-len (js/Math.ceil (/ (count word) 2))]
-                   (str "<b>" (subs word 0 bold-len) "</b>" (subs word bold-len))))))
+  (let [tokens (re-seq #"[A-Za-z\u00C0-\u024F]+|[^A-Za-z\u00C0-\u024F]+" text)]
+    (into [:<>]
+          (map (fn [token]
+                 (if (re-find #"^[A-Za-z\u00C0-\u024F]" token)
+                   (let [bold-len (js/Math.ceil (/ (count token) 2))]
+                     [:<> [:b (subs token 0 bold-len)] (subs token bold-len)])
+                   token)))
+          tokens)))
 
 ; Page sections
 
@@ -30,7 +34,7 @@
     [:a {:href "/"
          :class "flex items-center gap-3"}
      [icons/logo]
-     [:span {:class "font-display text-2xl tracking-tight text-ink"}
+     [:span {:class "font-display text-3xl tracking-tight text-ink"}
       "Read" [:span {:class "text-accent"} "X"]]]
     [:a {:href "https://github.com"
          :target "_blank"
@@ -142,8 +146,10 @@
         ; Output
         [:div
          [:label {:class "block text-sm font-semibold text-ink-muted uppercase tracking-wider mb-3"} "Bionic preview"]
-         [:div {:class "bionic-result w-full h-80 bg-white border border-paper-dark rounded-xl p-6 leading-loose text-xl overflow-y-auto"
-                :dangerouslySetInnerHTML {:__html (or @demo-output "<span class='text-ink-muted italic text-lg'>Click &quot;Convert&quot; to see the result...</span>")}}]]]
+         [:div {:class "bionic-result w-full h-80 bg-white border border-paper-dark rounded-xl p-6 leading-loose text-xl overflow-y-auto"}
+          (if @demo-output
+            @demo-output
+            [:span {:class "text-ink-muted italic text-lg"} "Click \"Convert\" to see the result..."])]]]
 
        [:div {:class "text-center mt-8"}
         [:button {:class "inline-flex items-center gap-2.5 bg-ink text-paper font-semibold px-10 py-4 rounded-xl hover:bg-ink-light transition-colors text-base"
@@ -151,10 +157,12 @@
                               (let [text (str/trim @demo-input)]
                                 (if (str/blank? text)
                                   (reset! demo-output nil)
-                                  (reset! demo-output
-                                          (->> (str/split-lines text)
-                                               (map #(if (str/blank? %) "" (to-bionic %)))
-                                               (str/join "<br>"))))))}
+                                  (let [lines (str/split-lines text)]
+                                    (reset! demo-output
+                                            (into [:<>]
+                                                  (interpose [:br]
+                                                             (map #(if (str/blank? %) "" (to-bionic %))
+                                                                  lines))))))))}
          [icons/bolt]
          "Convert Demo Text"]]])))
 
