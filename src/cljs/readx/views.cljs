@@ -129,9 +129,26 @@
         [:p {:class "text-center text-ink-muted text-sm mt-4"}
          "Your file is processed locally and never uploaded to any server."]]])))
 
+(def ^:const DEBOUNCE-MS 300)
+
+(defn- convert-text!
+  "Convert `text` to bionic format and store in `output` atom."
+  [text output]
+  (let [trimmed (str/trim text)]
+    (if (str/blank? trimmed)
+      (reset! output nil)
+      (let [lines (str/split-lines trimmed)]
+        (reset! output
+                (into [:<>]
+                      (interpose [:br]
+                                 (map #(if (str/blank? %) "" (to-bionic %))
+                                      lines))))))))
+
 (defn- demo-section []
   (let [demo-input (r/atom DEFAULT-DEMO-TEXT)
-        demo-output (r/atom nil)]
+        demo-output (r/atom nil)
+        timer (atom nil)]
+    (convert-text! @demo-input demo-output)
     (fn []
       [:section {:class "max-w-5xl mx-auto px-6 py-14"}
        [:div {:class "text-center mb-10"}
@@ -145,29 +162,18 @@
          [:textarea {:class "w-full h-80 bg-white border border-paper-dark rounded-xl p-6 text-ink leading-loose resize-none font-body text-xl placeholder:text-ink-muted"
                      :placeholder "Type or paste text here..."
                      :value @demo-input
-                     :on-change #(reset! demo-input (-> % .-target .-value))}]]
+                     :on-change (fn [e]
+                                  (let [text (-> e .-target .-value)]
+                                    (reset! demo-input text)
+                                    (when @timer (js/clearTimeout @timer))
+                                    (reset! timer (js/setTimeout #(convert-text! text demo-output) DEBOUNCE-MS))))}]]
         ; Output
         [:div
          [:label {:class "block text-sm font-semibold text-ink-muted uppercase tracking-wider mb-3"} "Bionic preview"]
          [:div {:class "bionic-result w-full h-80 bg-white border border-paper-dark rounded-xl p-6 leading-loose text-xl overflow-y-auto"}
           (if @demo-output
             @demo-output
-            [:span {:class "text-ink-muted italic text-lg"} "Click \"Convert\" to see the result..."])]]]
-
-       [:div {:class "text-center mt-8"}
-        [:button {:class "inline-flex items-center gap-2.5 bg-ink text-paper font-semibold px-10 py-4 rounded-xl hover:bg-ink-light transition-colors text-base"
-                  :on-click (fn []
-                              (let [text (str/trim @demo-input)]
-                                (if (str/blank? text)
-                                  (reset! demo-output nil)
-                                  (let [lines (str/split-lines text)]
-                                    (reset! demo-output
-                                            (into [:<>]
-                                                  (interpose [:br]
-                                                             (map #(if (str/blank? %) "" (to-bionic %))
-                                                                  lines))))))))}
-         [icons/bolt]
-         "Convert Demo Text"]]])))
+            [:span {:class "text-ink-muted italic text-lg"} "Start typing to see the result..."])]]]])))
 
 (defn- footer-section []
   [:footer {:class "border-t border-paper-dark"}
