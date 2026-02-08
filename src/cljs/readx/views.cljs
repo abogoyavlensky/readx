@@ -13,14 +13,17 @@
        "as reading comprehension. Reading is a means for language acquisition, "
        "communication, and sharing information and ideas."))
 
+(def ^:private token-re (js/RegExp. "\\p{L}+|[^\\p{L}]+" "u"))
+(def ^:private letter-re (js/RegExp. "^\\p{L}" "u"))
+
 (defn- to-bionic
   "Convert `text` to bionic reading format as hiccup.
   Bolds the first ceil(len/2) characters of each word."
   [text]
-  (let [tokens (re-seq #"[A-Za-z\u00C0-\u024F]+|[^A-Za-z\u00C0-\u024F]+" text)]
+  (let [tokens (re-seq token-re text)]
     (into [:<>]
           (map (fn [token]
-                 (if (re-find #"^[A-Za-z\u00C0-\u024F]" token)
+                 (if (re-find letter-re token)
                    (let [bold-len (js/Math.ceil (/ (count token) 2))]
                      [:<> [:b (subs token 0 bold-len)] (subs token bold-len)])
                    token)))
