@@ -2,20 +2,23 @@
   (:require [cljs.test :refer [is deftest]]
             [day8.re-frame.test :as rf-test]
             [re-frame.core :as rf]
-            [readx.events :as events]
-            [readx.subs :as subs]))
+            [re-frame.db :as rf-db]
+            [readx.events :as events]))
+
+(defn- current-route []
+  (:current-route @rf-db/app-db))
 
 (deftest test-initialize-db
   (rf-test/run-test-sync
     (rf/dispatch [::events/initialize-db])
-    (is (nil? @(rf/subscribe [::subs/current-route])))))
+    (is (nil? (current-route)))))
 
 (deftest test-navigate
   (rf-test/run-test-sync
     (rf/dispatch [::events/initialize-db])
     (rf/dispatch [::events/navigate {:name :home
                                      :path "/"}])
-    (let [route @(rf/subscribe [::subs/current-route])]
+    (let [route (current-route)]
       (is (some? route))
       (is (= :home (:name route)))
       (is (= "/" (:path route))))))
@@ -27,5 +30,5 @@
                                      :path "/"}])
     (rf/dispatch [::events/navigate {:name :about
                                      :path "/about"}])
-    (let [route @(rf/subscribe [::subs/current-route])]
+    (let [route (current-route)]
       (is (= :about (:name route))))))
