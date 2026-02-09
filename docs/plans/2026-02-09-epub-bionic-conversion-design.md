@@ -77,11 +77,35 @@ User drops .epub file
   → button shows "✓ Conversion complete — download ready"
 ```
 
-### CSRF Consideration
+### CSRF Token Strategy
 
-The app uses `ring-anti-forgery` middleware. The upload request needs to include the CSRF token. Options:
-- Embed the CSRF token in the page HTML (already standard with Ring)
-- Read it from a meta tag or cookie and include in the request header
+The app uses `ring-anti-forgery` middleware (`wrap-anti-forgery` in `server.clj`). The backend already has a `csrf-token` helper function in `server.clj` (wraps `anti-forgery/*anti-forgery-token*`), plus `csrf-token-html` and `csrf-token-json` helpers for server-rendered pages. However, none of these are currently exposed to the SPA frontend.
+
+**Approach: Meta tag injection + header on AJAX requests**
+
+1. **Backend** — inject CSRF token into the HTML page via a `<meta>` tag in the `index` hiccup template (`server.clj`):
+
+   ```clojure
+   [:meta {:name "csrf-token" :content (csrf-token)}]
+   ```
+
+2. **Frontend** — read the token from the meta tag on page load:
+
+   ```clojure
+   (defn csrf-token []
+     (.getAttribute (.querySelector js/document "meta[name='csrf-token']") "content"))
+   ```
+
+3. **AJAX requests** — include the token in the `X-CSRF-Token` header. Ring's anti-forgery middleware checks this header by default (in addition to form body params). For the file upload POST:
+
+   ```clojure
+   (let [xhr (js/XMLHttpRequest.)]
+     (.open xhr "POST" "/api/convert-epub")
+     (.setRequestHeader xhr "X-CSRF-Token" (csrf-token))
+     (.send xhr form-data))
+   ```
+
+This is the standard pattern for Ring + SPA apps. The token is per-session and validated server-side on every state-changing request.
 
 ### Error Handling
 
@@ -98,7 +122,7 @@ The app uses `ring-anti-forgery` middleware. The upload request needs to include
 - [ ] Add `convert-epub-handler` to handlers
 - [ ] Add `POST /api/convert-epub` route
 - [ ] Update frontend `converter-section` to POST file and trigger download
-- [ ] Handle CSRF token in the upload request
+- [ ] Handle CSRF token: add `<meta>` tag to `index` template, read it in frontend for AJAX header
 - [ ] Test with a real EPUB file
 - [ ] Remove "processed locally" disclaimer from the UI
 
