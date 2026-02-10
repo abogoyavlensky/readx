@@ -13,7 +13,6 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as ring-parameters]
             [ring.adapter.jetty :as jetty]
-            [ring.middleware.anti-forgery :as anti-forgery]
             [ring.middleware.content-type :as content-type]
             [ring.middleware.cookies :as ring-cookies]
             [ring.middleware.default-charset :as default-charset]
@@ -64,11 +63,13 @@
                              [default-charset/wrap-default-charset "utf-8"]
                              ; add handler options to request
                              [server-utils/wrap-context context]
-                             ; parse any request parameters
+                             ; parse request parameters
                              ring-parameters/parameters-middleware
-                             ring-multipart/multipart-middleware
                              ; negotiate request and response
                              muuntaja/format-middleware
+                             ; parse multipart bodies (after muuntaja so it
+                             ; handles multipart routes instead of muuntaja)
+                             ring-multipart/multipart-middleware
                              ; handle exceptions
                              server-utils/exception-middleware
                              ; coerce request and response to spec
@@ -82,15 +83,14 @@
         (server-utils/create-index-handler)
         (ring/redirect-trailing-slash-handler)
         (ring/create-default-handler))
-      ; Session and CSRF middleware at ring-handler level so both router routes
-      ; and fallback handlers (index page) share the same session/CSRF token
+      ; Session middleware at ring-handler level so both router routes
+      ; and fallback handlers (index page) share the same session
       {:middleware [ring-cookies/wrap-cookies
                    [ring-session/wrap-session
                     {:cookie-attrs {:secure (:cookie-attrs-secure? options)
                                     :http-only true}
                      :flash true
-                     :store session-store}]
-                   anti-forgery/wrap-anti-forgery]})))
+                     :store session-store}]]})))
 
 
 (defmethod ig/init-key ::server

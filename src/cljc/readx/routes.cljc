@@ -10,6 +10,7 @@
   [["/health" {:name ::health
                :get {#?@(:clj [:handler handlers/health-handler])}}]
    ["/api/convert-epub" {:name ::convert-epub
+                         :parameters {:multipart :any}
                          #?@(:clj [:post {:handler handlers/convert-epub-handler}])}]])
 
 #?(:cljs
