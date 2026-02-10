@@ -93,14 +93,14 @@
     (.append form-data "file" file)
     (set! (.-responseType xhr) "blob")
     (.addEventListener xhr "load"
-      (fn []
-        (if (<= 200 (.-status xhr) 299)
-          (do
-            (trigger-download (.-response xhr) bionic-name)
-            (reset! convert-state :done))
-          (reset! convert-state :error))))
+                       (fn []
+                         (if (<= 200 (.-status xhr) 299)
+                           (do
+                             (trigger-download (.-response xhr) bionic-name)
+                             (reset! convert-state :done))
+                           (reset! convert-state :error))))
     (.addEventListener xhr "error"
-      (fn [] (reset! convert-state :error)))
+                       (fn [] (reset! convert-state :error)))
     (.open xhr "POST" "/api/convert-epub")
     (when-let [token (csrf-token)]
       (.setRequestHeader xhr "X-CSRF-Token" token))

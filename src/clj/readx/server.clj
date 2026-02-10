@@ -86,12 +86,11 @@
       ; Session middleware at ring-handler level so both router routes
       ; and fallback handlers (index page) share the same session
       {:middleware [ring-cookies/wrap-cookies
-                   [ring-session/wrap-session
-                    {:cookie-attrs {:secure (:cookie-attrs-secure? options)
-                                    :http-only true}
-                     :flash true
-                     :store session-store}]]})))
-
+                    [ring-session/wrap-session
+                     {:cookie-attrs {:secure (:cookie-attrs-secure? options)
+                                     :http-only true}
+                      :flash true
+                      :store session-store}]]})))
 
 (defmethod ig/init-key ::server
   [_ {:keys [options]
