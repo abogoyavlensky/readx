@@ -8,7 +8,9 @@
   "API routes with handlers and schema."
   [_context]
   [["/health" {:name ::health
-               :get {#?@(:clj [:handler handlers/health-handler])}}]])
+               :get {#?@(:clj [:handler handlers/health-handler])}}]
+   ["/api/convert-epub" {:name ::convert-epub
+                         #?@(:clj [:post {:handler handlers/convert-epub-handler}])}]])
 
 #?(:cljs
    (def ^:private api-router

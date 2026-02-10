@@ -146,6 +146,7 @@
     [:link {:href (manifest/asset "css/output.css")
             :rel "stylesheet"
             :type "text/css"}]
+    [:meta {:name "csrf-token" :content (csrf-token)}]
     [:title "ReadX — Bionic Reading for EPUB"]]
    [:body
     [:div {:id "app"}]

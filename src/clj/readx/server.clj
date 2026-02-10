@@ -62,12 +62,6 @@
                              not-modified/wrap-not-modified
                              content-type/wrap-content-type
                              [default-charset/wrap-default-charset "utf-8"]
-                             ring-cookies/wrap-cookies
-                             [ring-session/wrap-session
-                              {:cookie-attrs {:secure (:cookie-attrs-secure? options)
-                                              :http-only true}
-                               :flash true
-                               :store session-store}]
                              ; add handler options to request
                              [server-utils/wrap-context context]
                              ; parse any request parameters
@@ -75,8 +69,6 @@
                              ring-multipart/multipart-middleware
                              ; negotiate request and response
                              muuntaja/format-middleware
-                             ; check CSRF token
-                             anti-forgery/wrap-anti-forgery
                              ; handle exceptions
                              server-utils/exception-middleware
                              ; coerce request and response to spec
@@ -89,7 +81,17 @@
                                                       :cache-control (:cache-control options)})
         (server-utils/create-index-handler)
         (ring/redirect-trailing-slash-handler)
-        (ring/create-default-handler)))))
+        (ring/create-default-handler))
+      ; Session and CSRF middleware at ring-handler level so both router routes
+      ; and fallback handlers (index page) share the same session/CSRF token
+      {:middleware [ring-cookies/wrap-cookies
+                   [ring-session/wrap-session
+                    {:cookie-attrs {:secure (:cookie-attrs-secure? options)
+                                    :http-only true}
+                     :flash true
+                     :store session-store}]
+                   anti-forgery/wrap-anti-forgery]})))
+
 
 (defmethod ig/init-key ::server
   [_ {:keys [options]

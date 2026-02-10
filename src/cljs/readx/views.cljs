@@ -66,9 +66,49 @@
     [:b {:class "text-ink font-semibold"} "gli"] "de "
     [:b {:class "text-ink font-semibold"} "fas"] "ter."]])
 
+(defn- csrf-token []
+  (some-> (js/document.querySelector "meta[name='csrf-token']")
+          (.getAttribute "content")))
+
+(defn- trigger-download
+  "Create a temporary link to download a blob with given `filename`."
+  [blob filename]
+  (let [url (.createObjectURL js/URL blob)
+        a (.createElement js/document "a")]
+    (set! (.-href a) url)
+    (set! (.-download a) filename)
+    (.appendChild (.-body js/document) a)
+    (.click a)
+    (.removeChild (.-body js/document) a)
+    (.revokeObjectURL js/URL url)))
+
+(defn- upload-and-convert
+  "POST the `file` to /api/convert-epub, trigger download on success."
+  [file convert-state]
+  (reset! convert-state :processing)
+  (let [form-data (js/FormData.)
+        xhr (js/XMLHttpRequest.)
+        original-name (.-name file)
+        bionic-name (str (str/replace original-name #"\.epub$" "") "-bionic.epub")]
+    (.append form-data "file" file)
+    (set! (.-responseType xhr) "blob")
+    (.addEventListener xhr "load"
+      (fn []
+        (if (<= 200 (.-status xhr) 299)
+          (do
+            (trigger-download (.-response xhr) bionic-name)
+            (reset! convert-state :done))
+          (reset! convert-state :error))))
+    (.addEventListener xhr "error"
+      (fn [] (reset! convert-state :error)))
+    (.open xhr "POST" "/api/convert-epub")
+    (when-let [token (csrf-token)]
+      (.setRequestHeader xhr "X-CSRF-Token" token))
+    (.send xhr form-data)))
+
 (defn- converter-section []
-  (let [selected-file (r/atom nil)
-        convert-state (r/atom :idle) ; :idle :processing :done
+  (let [selected-file (r/atom nil) ; stores the File object
+        convert-state (r/atom :idle) ; :idle :processing :done :error
         drag-over? (r/atom false)
         file-input-ref (r/atom nil)]
     (fn []
@@ -89,7 +129,7 @@
                           (reset! drag-over? false)
                           (let [file (-> e .-dataTransfer .-files (aget 0))]
                             (when (and file (str/ends-with? (.-name file) ".epub"))
-                              (reset! selected-file (.-name file))
+                              (reset! selected-file file)
                               (reset! convert-state :idle))))}
          [:input {:type "file"
                   :accept ".epub"
@@ -97,13 +137,13 @@
                   :ref #(reset! file-input-ref %)
                   :on-change (fn [e]
                                (when-let [file (-> e .-target .-files (aget 0))]
-                                 (reset! selected-file (.-name file))
+                                 (reset! selected-file file)
                                  (reset! convert-state :idle)))}]
 
          (if @selected-file
            [:div {:class "fade-in"}
             [icons/file-ready]
-            [:p {:class "text-ink font-semibold text-xl"} @selected-file]
+            [:p {:class "text-ink font-semibold text-xl"} (.-name @selected-file)]
             [:p {:class "text-ink-muted text-base mt-1"} "Ready to convert"]]
            [:div
             [icons/upload]
@@ -114,20 +154,19 @@
         [:button {:class (str "btn-convert w-full mt-8 text-white font-semibold text-xl py-5 rounded-xl transition-colors "
                               (case @convert-state
                                 :done "bg-green-700 hover:bg-green-800"
+                                :error "bg-red-700 hover:bg-red-800"
                                 "bg-accent hover:bg-accent-dark")
                               (when (or (nil? @selected-file) (= @convert-state :processing))
                                 " opacity-40 cursor-not-allowed"))
                   :disabled (or (nil? @selected-file) (= @convert-state :processing))
                   :on-click (fn []
-                              (reset! convert-state :processing)
-                              (js/setTimeout #(reset! convert-state :done) 1500))}
+                              (when @selected-file
+                                (upload-and-convert @selected-file convert-state)))}
          (case @convert-state
            :processing "Processing..."
            :done "\u2713 Conversion complete \u2014 download ready"
-           "Convert to Bionic EPUB")]
-
-        [:p {:class "text-center text-ink-muted text-sm mt-4"}
-         "Your file is processed locally and never uploaded to any server."]]])))
+           :error "Conversion failed \u2014 click to retry"
+           "Convert to Bionic EPUB")]]])))
 
 (def ^:const DEBOUNCE-MS 300)
 
