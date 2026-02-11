@@ -1,12 +1,18 @@
 (ns readx.test-utils
   (:require [clj-reload.core :as reload]
             [integrant.core :as ig]
+            [ring.middleware.session.cookie :as ring-session-cookie]
+            [ring.middleware.session.store :as ring-session-store]
+            [ring.util.codec :as codec]
             [readx.db :as db]
             [readx.server :as server]
+            [readx.utils.server :as server-utils]
             [readx.utils.config :as config]))
 
 ; TODO: check if needed!
 (def ^:const TEST-CSRF-TOKEN "test-csrf-token")
+(def ^:const CSRF-TOKEN-HEADER "X-CSRF-Token")
+(def ^:const CSRF-TOKEN-SESSION-KEY :ring.middleware.anti-forgery/anti-forgery-token)
 (def ^:const TEST-SECRET-KEY "test-secret-key")
 
 (def ^:dynamic *test-system* nil)
@@ -50,6 +56,24 @@
   (let [base-url "http://localhost:"
         port (.getLocalPort (first (.getConnectors server)))]
     (str base-url port)))
+
+(defn encrypt-session-to-cookie
+  "Encrypt session data to a cookie value using the server's session store."
+  [session-data secret-key]
+  (-> (ring-session-cookie/cookie-store
+        {:key (server-utils/string->16-byte-array secret-key)})
+      (ring-session-store/write-session nil session-data)
+      (codec/form-encode)))
+
+(defn session-cookies
+  "Convert session data to cookies for a request."
+  ([session-data]
+   (session-cookies session-data TEST-SECRET-KEY))
+  ([session-data secret-key]
+   {"ring-session" {:value (encrypt-session-to-cookie session-data secret-key)
+                    :path "/"
+                    :http-only true
+                    :secure true}}))
 
 (defn db
   "Get the database connection from the test system."
