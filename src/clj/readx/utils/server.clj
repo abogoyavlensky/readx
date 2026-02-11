@@ -116,6 +116,33 @@
           (ring/-create-file-or-resource-handler opts)
           (gzip/wrap-gzip)))))
 
+(defn- allowed-origin?
+  "Check if `origin` is allowed by `allowed-origins` config."
+  [allowed-origins origin]
+  (cond
+    (nil? origin) false
+    (= :all allowed-origins) true
+    :else (contains? (set allowed-origins) origin)))
+
+(defn- cors-headers [origin]
+  {"Access-Control-Allow-Origin" origin
+   "Access-Control-Allow-Headers" "Content-Type, Authorization"
+   "Access-Control-Allow-Credentials" "true"})
+
+(defn wrap-cors
+  "CORS middleware. `allowed-origins` is `:all` or a vector of origin strings."
+  [handler allowed-origins]
+  (fn [request]
+    (let [origin (get-in request [:headers "origin"])]
+      (if (allowed-origin? allowed-origins origin)
+        (if (= :options (:request-method request))
+          {:status 200
+           :headers (cors-headers origin)
+           :body ""}
+          (some-> (handler request)
+                  (update :headers merge (cors-headers origin))))
+        (handler request)))))
+
 (defn wrap-xss-protection
   ([handler]
    (wrap-xss-protection handler {}))

@@ -36,6 +36,7 @@
                 [:session-secret-key string?]
                 [:cookie-attrs-secure? boolean?]
                 [:auto-reload? boolean?]
+                [:allowed-origins [:or [:= :all] [:vector string?]]]
                 [:cache-assets? {:optional true} boolean?]
                 [:cache-control {:optional true} string?]]]
               [:db [:fn
@@ -55,7 +56,8 @@
         {:exception pretty/exception
          :data {:muuntaja muuntaja-core/instance
                 :coercion coercion-malli/coercion
-                :middleware [[x-headers/wrap-content-type-options :nosniff]
+                :middleware [[server-utils/wrap-cors (:allowed-origins options)]
+                             [x-headers/wrap-content-type-options :nosniff]
                              [x-headers/wrap-frame-options :sameorigin]
                              ring-ssl/wrap-hsts
                              server-utils/wrap-xss-protection

@@ -12,6 +12,8 @@
                                             :prod true}
             :auto-reload? #profile {:default false
                                     :dev true}
+            :allowed-origins #profile {:default :all
+                                       :prod [#envf ["https://%s" APP_DOMAIN]]}
             :cache-assets? #profile {:default false
                                      :prod true}}
   :db #ig/ref :readx.db/db}}
