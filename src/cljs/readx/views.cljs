@@ -114,61 +114,69 @@
         drag-over? (r/atom false)
         file-input-ref (r/atom nil)]
     (fn []
-      [:section {:class "max-w-5xl mx-auto px-6 py-10"}
-       [:div {:class "bg-white rounded-2xl shadow-sm border border-paper-dark p-8 md:p-12"}
+      (let [processing? (= @convert-state :processing)]
+        [:section {:class "max-w-5xl mx-auto px-6 py-10"}
+         [:div {:class "bg-white rounded-2xl shadow-sm border border-paper-dark p-8 md:p-12"}
 
-        ; Upload zone
-        [:div {:class (str "upload-zone rounded-xl p-10 text-center cursor-pointer transition-all"
-                           (when @drag-over? " drag-over")
-                           (when @selected-file " file-ready"))
-               :on-click #(when-let [input @file-input-ref] (.click input))
-               :on-drag-over (fn [e]
-                               (.preventDefault e)
-                               (reset! drag-over? true))
-               :on-drag-leave #(reset! drag-over? false)
-               :on-drop (fn [e]
-                          (.preventDefault e)
-                          (reset! drag-over? false)
-                          (let [file (-> e .-dataTransfer .-files (aget 0))]
-                            (when (and file (str/ends-with? (.-name file) ".epub"))
-                              (reset! selected-file file)
-                              (reset! convert-state :idle))))}
-         [:input {:type "file"
-                  :accept ".epub"
-                  :class "hidden"
-                  :ref #(reset! file-input-ref %)
-                  :on-change (fn [e]
-                               (when-let [file (-> e .-target .-files (aget 0))]
-                                 (reset! selected-file file)
-                                 (reset! convert-state :idle)))}]
+          ; Upload zone
+          [:div {:class (str "upload-zone rounded-xl p-10 text-center transition-all"
+                             (if processing?
+                               " opacity-60 cursor-not-allowed pointer-events-none"
+                               " cursor-pointer")
+                             (when @drag-over? " drag-over")
+                             (when @selected-file " file-ready"))
+                 :on-click #(when-not processing?
+                              (when-let [input @file-input-ref] (.click input)))
+                 :on-drag-over (fn [e]
+                                 (.preventDefault e)
+                                 (when-not processing?
+                                   (reset! drag-over? true)))
+                 :on-drag-leave #(reset! drag-over? false)
+                 :on-drop (fn [e]
+                            (.preventDefault e)
+                            (reset! drag-over? false)
+                            (when-not processing?
+                              (let [file (-> e .-dataTransfer .-files (aget 0))]
+                                (when (and file (str/ends-with? (.-name file) ".epub"))
+                                  (reset! selected-file file)
+                                  (reset! convert-state :idle)))))}
+           [:input {:type "file"
+                    :accept ".epub"
+                    :class "hidden"
+                    :disabled processing?
+                    :ref #(reset! file-input-ref %)
+                    :on-change (fn [e]
+                                 (when-let [file (-> e .-target .-files (aget 0))]
+                                   (reset! selected-file file)
+                                   (reset! convert-state :idle)))}]
 
-         (if @selected-file
-           [:div {:class "fade-in"}
-            [icons/file-ready]
-            [:p {:class "text-ink font-semibold text-xl"} (.-name @selected-file)]
-            [:p {:class "text-ink-muted text-base mt-1"} "Ready to convert"]]
-           [:div
-            [icons/upload]
-            [:p {:class "text-ink-light text-xl font-medium"} "Drop your EPUB here"]
-            [:p {:class "text-ink-muted text-base mt-1"} "or click to browse"]])]
+           (if @selected-file
+             [:div {:class "fade-in"}
+              [icons/file-ready]
+              [:p {:class "text-ink font-semibold text-xl"} (.-name @selected-file)]
+              [:p {:class "text-ink-muted text-base mt-1"} "Ready to convert"]]
+             [:div
+              [icons/upload]
+              [:p {:class "text-ink-light text-xl font-medium"} "Drop your EPUB here"]
+              [:p {:class "text-ink-muted text-base mt-1"} "or click to browse"]])]
 
-        ; Convert button
-        [:button {:class (str "btn-convert w-full mt-8 text-white font-semibold text-xl py-5 rounded-xl transition-colors "
-                              (case @convert-state
-                                :done "bg-green-700 hover:bg-green-800"
-                                :error "bg-red-700 hover:bg-red-800"
-                                "bg-accent hover:bg-accent-dark")
-                              (when (or (nil? @selected-file) (= @convert-state :processing))
-                                " opacity-40 cursor-not-allowed"))
-                  :disabled (or (nil? @selected-file) (= @convert-state :processing))
-                  :on-click (fn []
-                              (when @selected-file
-                                (upload-and-convert @selected-file convert-state)))}
-         (case @convert-state
-           :processing "Processing..."
-           :done "\u2713 Conversion complete \u2014 download ready"
-           :error "Conversion failed \u2014 click to retry"
-           "Convert to Bionic EPUB")]]])))
+          ; Convert button
+          [:button {:class (str "btn-convert w-full mt-8 text-white font-semibold text-xl py-5 rounded-xl transition-colors "
+                                (case @convert-state
+                                  :done "bg-green-700 hover:bg-green-800"
+                                  :error "bg-red-700 hover:bg-red-800"
+                                  "bg-accent hover:bg-accent-dark")
+                                (when (or (nil? @selected-file) processing?)
+                                  " opacity-40 cursor-not-allowed"))
+                    :disabled (or (nil? @selected-file) processing?)
+                    :on-click (fn []
+                                (when @selected-file
+                                  (upload-and-convert @selected-file convert-state)))}
+           (case @convert-state
+             :processing "Processing..."
+             :done "\u2713 Conversion complete \u2014 download ready"
+             :error "Conversion failed \u2014 click to retry"
+             "Convert to Bionic EPUB")]]]))))
 
 (def ^:const DEBOUNCE-MS 300)
 
