@@ -66,7 +66,9 @@
     [:b {:class "text-ink font-semibold"} "gli"] "de "
     [:b {:class "text-ink font-semibold"} "fas"] "ter."]])
 
-(defn- csrf-token []
+(defn- csrf-token
+  "Get CSRF token from meta tag in HTML head."
+  []
   (some-> (js/document.querySelector "meta[name='csrf-token']")
           (.getAttribute "content")))
 

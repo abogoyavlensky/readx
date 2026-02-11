@@ -13,6 +13,7 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as ring-parameters]
             [ring.adapter.jetty :as jetty]
+            [ring.middleware.anti-forgery :as anti-forgery]
             [ring.middleware.content-type :as content-type]
             [ring.middleware.cookies :as ring-cookies]
             [ring.middleware.default-charset :as default-charset]
@@ -90,7 +91,8 @@
                      {:cookie-attrs {:secure (:cookie-attrs-secure? options)
                                      :http-only true}
                       :flash true
-                      :store session-store}]]})))
+                      :store session-store}]
+                    anti-forgery/wrap-anti-forgery]})))
 
 (defmethod ig/init-key ::server
   [_ {:keys [options]
