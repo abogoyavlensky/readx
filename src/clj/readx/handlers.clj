@@ -3,7 +3,9 @@
             [clojure.tools.logging :as log]
             [readx.utils.epub :as epub]
             [ring.util.response :as response])
-  (:import (java.io ByteArrayInputStream)))
+  (:import (java.io ByteArrayInputStream File)))
+
+(def ^:const MAX-FILE-SIZE 10485760) ; 10MB
 
 (defn health-handler
   "Health check handler."
@@ -13,16 +15,31 @@
 (defn convert-epub-handler
   "Receive an EPUB file, convert to bionic reading format, return the result."
   [request]
-  (let [file (get-in request [:multipart-params "file"])]
-    (if (or (nil? file) (str/blank? (:filename file)))
+  (let [file (get-in request [:multipart-params "file"])
+        filename (:filename file)
+        file-size (cond
+                    (instance? File (:tempfile file)) (.length ^File (:tempfile file))
+                    (:bytes file) (count (:bytes file))
+                    :else 0)]
+    (cond
+      (or (nil? file) (str/blank? filename))
       (-> (response/response {:error "No file provided"})
           (response/status 400))
+
+      (not (str/ends-with? (str/lower-case filename) ".epub"))
+      (-> (response/response {:error "Only EPUB files are supported"})
+          (response/status 400))
+
+      (> file-size MAX-FILE-SIZE)
+      (-> (response/response {:error "File size exceeds 10MB limit"})
+          (response/status 413))
+
+      :else
       (try
-        (let [input-stream (if (instance? java.io.File (:tempfile file))
-                             (java.io.FileInputStream. ^java.io.File (:tempfile file))
+        (let [input-stream (if (instance? File (:tempfile file))
+                             (java.io.FileInputStream. ^File (:tempfile file))
                              (ByteArrayInputStream. (:bytes file)))
-              original-name (:filename file)
-              bionic-name (str (str/replace original-name #"\.epub$" "") "-bionic.epub")
+              bionic-name (str (str/replace filename #"(?i)\.epub$" "") "-bionic.epub")
               result (epub/convert-to-bionic input-stream)]
           (-> (response/response (ByteArrayInputStream. result))
               (response/content-type "application/epub+zip")

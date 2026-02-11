@@ -1,13 +1,13 @@
 (ns readx.test-utils
   (:require [clj-reload.core :as reload]
             [integrant.core :as ig]
-            [ring.middleware.session.cookie :as ring-session-cookie]
-            [ring.middleware.session.store :as ring-session-store]
-            [ring.util.codec :as codec]
             [readx.db :as db]
             [readx.server :as server]
+            [readx.utils.config :as config]
             [readx.utils.server :as server-utils]
-            [readx.utils.config :as config]))
+            [ring.middleware.session.cookie :as ring-session-cookie]
+            [ring.middleware.session.store :as ring-session-store]
+            [ring.util.codec :as codec]))
 
 ; TODO: check if needed!
 (def ^:const TEST-CSRF-TOKEN "test-csrf-token")
