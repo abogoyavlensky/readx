@@ -27,7 +27,10 @@
         com.github.seancorfield/honeysql {:mvn/version "2.7.1368"}
         dev.weavejester/ragtime {:mvn/version "0.12.1"}
         ; epub processing
-        com.positiondev.epublib/epublib-core {:mvn/version "3.1"}
+        ; exclude xmlpull: kxml2 already bundles its API, and both JARs
+        ; provide META-INF/services that get mangled during uberjar build
+        com.positiondev.epublib/epublib-core {:mvn/version "3.1"
+                                              :exclusions [xmlpull/xmlpull]}
         org.jsoup/jsoup {:mvn/version "1.22.1"}}
 
  :paths ["src/clj" "src/cljc" "src/cljs" "resources"]
