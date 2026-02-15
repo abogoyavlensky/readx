@@ -21,7 +21,8 @@
             [ring.middleware.session :as ring-session]
             [ring.middleware.session.cookie :as ring-session-cookie]
             [ring.middleware.ssl :as ring-ssl]
-            [ring.middleware.x-headers :as x-headers])
+            [ring.middleware.x-headers :as x-headers]
+            [sentry-clj.ring :as sentry-ring])
   (:import com.zaxxer.hikari.HikariDataSource))
 
 (defmethod ig/assert-key ::server
@@ -41,7 +42,8 @@
                 [:cache-control {:optional true} string?]]]
               [:db [:fn
                     {:error/message "Invalid datasource type"}
-                    #(instance? HikariDataSource %)]]]}))
+                    #(instance? HikariDataSource %)]]
+              [:sentry [:enum :sentry-initialized nil]]]}))
 
 (defn ring-handler
   "Return main application handler for server-side rendering."
@@ -66,6 +68,8 @@
                              [default-charset/wrap-default-charset "utf-8"]
                              ; add handler options to request
                              [server-utils/wrap-context context]
+                             ; sentry error reporting
+                             sentry-ring/wrap-sentry-tracing
                              ; parse request parameters
                              ring-parameters/parameters-middleware
                              ; negotiate request and response

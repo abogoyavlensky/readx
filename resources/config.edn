@@ -1,4 +1,7 @@
-{:readx.db/db
+{:readx.sentry/sentry
+ {:dsn #or [#env SENTRY_DSN nil]}
+
+ :readx.db/db
  {:jdbc-url #profile {:default "jdbc:sqlite:db/readx.sqlite"
                       :test "jdbc:sqlite::memory:"}}
 
@@ -16,4 +19,5 @@
                                        :prod [#envf ["https://%s" APP_DOMAIN]]}
             :cache-assets? #profile {:default false
                                      :prod true}}
-  :db #ig/ref :readx.db/db}}
+  :db #ig/ref :readx.db/db
+  :sentry #ig/ref :readx.sentry/sentry}}

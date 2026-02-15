@@ -6,8 +6,18 @@
         </encoder>
     </appender>
 
+    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <options>
+            <sendDefaultPii>true</sendDefaultPii>
+        </options>
+        <minimumEventLevel>WARN</minimumEventLevel>
+        <minimumBreadcrumbLevel>DEBUG</minimumBreadcrumbLevel>
+        <minimumLevel>DEBUG</minimumLevel>
+    </appender>
+
     <logger name="com.zaxxer.hikari" level="warn"/>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="Sentry" />
     </root>
 </configuration>

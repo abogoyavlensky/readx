@@ -9,7 +9,8 @@
             [next.jdbc.result-set :as jdbc-rs]
             [ragtime.next-jdbc :as ragtime-jdbc]
             [ragtime.repl :as ragtime-repl]
-            [readx.utils.config :as config]))
+            [readx.utils.config :as config]
+            [sentry-clj.tracing :as tracing]))
 
 ; Common functions
 
@@ -20,13 +21,15 @@
   "Send query to db and return vector of result items."
   [db query]
   (let [query-sql (honey/format query {:quoted true})]
-    (jdbc/execute! db query-sql sql-params)))
+    (tracing/with-start-child-span "db.sql.query" (first query-sql)
+      (jdbc/execute! db query-sql sql-params))))
 
 (defn exec-one!
   "Send query to db and return single result item."
   [db query]
   (let [query-sql (honey/format query {:quoted true})]
-    (jdbc/execute-one! db query-sql sql-params)))
+    (tracing/with-start-child-span "db.sql.query" (first query-sql)
+      (jdbc/execute-one! db query-sql sql-params))))
 
 ; Component
 
