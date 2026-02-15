@@ -1,5 +1,6 @@
 (ns readx.routes
   (:require #?(:clj [readx.handlers :as handlers])
+            #?(:clj [readx.limits :as limits])
             #?(:cljs [reitit.coercion.malli :as reitit-malli])
             #?(:cljs [reitit.core :as reitit])
             #?(:cljs [reitit.frontend :as reitit-front])))
@@ -11,7 +12,10 @@
                :get {#?@(:clj [:handler handlers/health-handler])}}]
    ["/api/convert-epub" {:name ::convert-epub
                          :parameters {:multipart :any}
-                         #?@(:clj [:post {:handler handlers/convert-epub-handler}])}]])
+                         #?@(:clj [:middleware [[limits/wrap-rate-limit {:max-requests 10
+                                                                         :window-ms 60000
+                                                                         :id :convert-epub}]]
+                                   :post {:handler handlers/convert-epub-handler}])}]])
 
 #?(:cljs
    (def ^:private api-router
