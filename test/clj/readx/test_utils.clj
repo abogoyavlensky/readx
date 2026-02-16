@@ -9,7 +9,6 @@
             [ring.middleware.session.store :as ring-session-store]
             [ring.util.codec :as codec]))
 
-; TODO: check if needed!
 (def ^:const TEST-CSRF-TOKEN "test-csrf-token")
 (def ^:const CSRF-TOKEN-HEADER "X-CSRF-Token")
 (def ^:const CSRF-TOKEN-SESSION-KEY :ring.middleware.anti-forgery/anti-forgery-token)

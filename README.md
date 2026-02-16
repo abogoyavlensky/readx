@@ -24,9 +24,6 @@ JS and CSS assets will be served from `http://localhost:8000/assets/` and will b
 
 In a separate terminal or your editor run server from built-in REPL:
 
-> [!NOTE]
-> If you're using PostgreSQL, [Docker](https://docs.docker.com/engine/install/) should be installed
-
  ```shell
 bb clj-repl 
 (reset)

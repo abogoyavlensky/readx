@@ -30,7 +30,6 @@ RUN bb build
 
 
 FROM eclipse-temurin:25.0.1_8-jre-alpine
-# TODO: update github username to manage images on the ghcr.io
 LABEL org.opencontainers.image.source=https://github.com/abogoyavlensky/readx
 
 WORKDIR /app
