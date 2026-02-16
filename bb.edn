@@ -67,7 +67,7 @@
                  :task (shell "npx shadow-cljs watch test")}
 
   check {:doc "Run all code checks and tests"
-         :depends [fmt lint test ui-test]}
+         :depends [fmt lint outdated test ui-test]}
 
   carve {:doc "Remove unused code"
          :requires ([carve.api :as carve])
