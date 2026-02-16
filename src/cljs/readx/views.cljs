@@ -45,7 +45,7 @@
        "Read" [:span {:class "text-accent"} "X"]]
       [:span {:class "text-base text-ink-muted tracking-wide"}
        "Reading extended"]]]
-    [:a {:href "https://github.com"
+    [:a {:href "https://github.com/abogoyavlensky/readx"
          :target "_blank"
          :rel "noopener noreferrer"
          :class "text-ink-muted hover:text-ink transition-colors"
@@ -235,10 +235,10 @@
    [:div {:class "max-w-5xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3"}
     [:p {:class "text-ink-muted text-sm"}
      "Built by "
-     [:a {:href "https://github.com"
+     [:a {:href "https://github.com/abogoyavlensky"
           :target "_blank"
           :rel "noopener noreferrer"
-          :class "text-ink-light hover:text-accent transition-colors font-medium"} "Andrey Bogoyavlenskiy"]]
+          :class "text-ink-light hover:text-accent transition-colors font-medium"} "Andrey B."]]
     [:p {:class "text-ink-muted text-sm"}
      "ReadX \u2014 Bionic reading for your EPUB library"]]])
 
