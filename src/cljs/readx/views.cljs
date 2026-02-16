@@ -1,6 +1,7 @@
 (ns readx.views
   (:require [clojure.string :as str]
             [re-frame.core :as re-frame]
+            [readx.assets :as assets]
             [readx.icons :as icons]
             [readx.router :as-alias ui-router]
             [readx.subs :as subs]
@@ -36,7 +37,9 @@
    [:div {:class "max-w-5xl mx-auto px-6 py-5 flex items-center justify-between"}
     [:a {:href "/"
          :class "flex items-center gap-3"}
-     [icons/logo]
+     [:img {:src (assets/asset "images/icon.svg")
+            :alt "ReadX"
+            :class "w-10 h-10 rounded-lg"}]
      [:span {:class "font-display text-3xl tracking-tight text-ink"}
       "Read" [:span {:class "text-accent"} "X"]]]
     [:a {:href "https://github.com"
