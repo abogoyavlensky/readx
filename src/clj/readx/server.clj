@@ -23,7 +23,8 @@
             [ring.middleware.ssl :as ring-ssl]
             [ring.middleware.x-headers :as x-headers]
             [sentry-clj.ring :as sentry-ring])
-  (:import com.zaxxer.hikari.HikariDataSource))
+  (:import com.zaxxer.hikari.HikariDataSource
+           java.util.concurrent.ExecutorService))
 
 (defmethod ig/assert-key ::server
   [_ params]
@@ -43,7 +44,10 @@
               [:db [:fn
                     {:error/message "Invalid datasource type"}
                     #(instance? HikariDataSource %)]]
-              [:sentry [:enum :sentry-initialized nil]]]}))
+              [:sentry [:enum :sentry-initialized nil]]
+              [:pool [:fn
+                      {:error/message "Invalid thread pool type"}
+                      #(instance? ExecutorService %)]]]}))
 
 (defn ring-handler
   "Return main application handler for server-side rendering."

@@ -5,6 +5,9 @@
  {:jdbc-url #profile {:default "jdbc:sqlite:db/readx.sqlite"
                       :test "jdbc:sqlite::memory:"}}
 
+ :readx.worker/pool
+ {:size #profile {:default 4 :prod 2}}
+
  :readx.server/server
  {:options {:port #profile {:default 8000
                             :prod 80
@@ -20,4 +23,5 @@
             :cache-assets? #profile {:default false
                                      :prod true}}
   :db #ig/ref :readx.db/db
-  :sentry #ig/ref :readx.sentry/sentry}}
+  :sentry #ig/ref :readx.sentry/sentry
+  :pool #ig/ref :readx.worker/pool}}

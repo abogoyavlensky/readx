@@ -1,6 +1,7 @@
 (ns readx.handlers
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
+            [com.climate.claypoole :as cp]
             [readx.utils.epub :as epub]
             [ring.util.response :as response])
   (:import (java.io ByteArrayInputStream File)))
@@ -36,11 +37,12 @@
 
       :else
       (try
-        (let [input-stream (if (instance? File (:tempfile file))
+        (let [pool (get-in request [:context :pool])
+              input-stream (if (instance? File (:tempfile file))
                              (java.io.FileInputStream. ^File (:tempfile file))
                              (ByteArrayInputStream. (:bytes file)))
               bionic-name (str (str/replace filename #"(?i)\.epub$" "") "-bionic.epub")
-              result (epub/convert-to-bionic input-stream)]
+              result @(cp/future pool (epub/convert-to-bionic input-stream))]
           (-> (response/response (ByteArrayInputStream. result))
               (response/content-type "application/epub+zip")
               (response/header "Content-Disposition" (str "attachment; filename=\"" bionic-name "\""))

@@ -31,7 +31,9 @@
         ; provide META-INF/services that get mangled during uberjar build
         com.positiondev.epublib/epublib-core {:mvn/version "3.1"
                                               :exclusions [xmlpull/xmlpull]}
-        org.jsoup/jsoup {:mvn/version "1.22.1"}}
+        org.jsoup/jsoup {:mvn/version "1.22.1"}
+        ; async worker pool
+        org.clj-commons/claypoole {:mvn/version "1.2.2"}}
 
  :paths ["src/clj" "src/cljc" "src/cljs" "resources"]
 
