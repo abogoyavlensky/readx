@@ -1,9 +1,14 @@
-# readx
+# ReadX
 
-_This application is generated with [clojure-stack-spa](https://github.com/abogoyavlensky/clojure-stack-spa)._
+Reading extended. A web application that applies bionic reading styling to EPUB books, making text easier and faster to read by bolding the first part of each word.
 
-_TODO: add project description_
+Upload an EPUB file, get it back with bionic reading applied.
 
+Built with Clojure and ClojureScript using [clojure-stack-spa](https://github.com/abogoyavlensky/clojure-stack-spa).
+
+## Preview
+
+![ReadX preview](docs/images/preview.png)
 
 ## Development
 

@@ -1,7 +1,7 @@
 {:deps {org.clojure/clojure {:mvn/version "1.12.4"}
         ; logging
         org.clojure/tools.logging {:mvn/version "1.3.1"}
-        ch.qos.logback/logback-classic {:mvn/version "1.5.31"}
+        ch.qos.logback/logback-classic {:mvn/version "1.5.32"}
         ; sentry
         io.sentry/sentry {:mvn/version "8.32.0"}
         io.sentry/sentry-clj {:mvn/version "8.29.238"}
