@@ -40,8 +40,11 @@
      [:img {:src (assets/asset "images/icon.svg")
             :alt "ReadX"
             :class "w-10 h-10 rounded-lg"}]
-     [:span {:class "font-display text-3xl tracking-tight text-ink"}
-      "Read" [:span {:class "text-accent"} "X"]]]
+     [:div {:class "flex flex-col leading-none"}
+      [:span {:class "font-display text-4xl tracking-tight text-ink"}
+       "Read" [:span {:class "text-accent"} "X"]]
+      [:span {:class "text-base text-ink-muted tracking-wide"}
+       "Reading extended"]]]
     [:a {:href "https://github.com"
          :target "_blank"
          :rel "noopener noreferrer"
