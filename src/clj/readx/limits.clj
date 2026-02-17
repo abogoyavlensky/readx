@@ -1,5 +1,6 @@
 (ns readx.limits
-  (:require [ring.util.response :as response]))
+  (:require [ring.util.response :as response]
+            [sentry-clj.metrics :as metrics]))
 
 ; Rate limiting storage - maps composite key (id-ip) to {:count N :last-reset timestamp}
 (defonce rate-limit-store (atom {}))
@@ -40,7 +41,10 @@
                        (assoc current-data :count new-count))]
         (if (<= new-count max-requests)
           (do
+            (metrics/increment "rate_limit.check" 1.0 nil {:outcome "allowed"})
             (swap! rate-limit-store assoc composite-key new-data)
             (handler request))
-          (-> (response/response {:error "Too many requests. Please try again later."})
-              (response/status 429)))))))
+          (do
+            (metrics/increment "rate_limit.check" 1.0 nil {:outcome "rejected"})
+            (-> (response/response {:error "Too many requests. Please try again later."})
+                (response/status 429))))))))

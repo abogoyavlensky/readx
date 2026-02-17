@@ -1,5 +1,6 @@
 (ns readx.server
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [integrant.core :as ig]
             [muuntaja.core :as muuntaja-core]
             [readx.routes :as app-routes]
@@ -22,6 +23,7 @@
             [ring.middleware.session.cookie :as ring-session-cookie]
             [ring.middleware.ssl :as ring-ssl]
             [ring.middleware.x-headers :as x-headers]
+            [sentry-clj.metrics :as metrics]
             [sentry-clj.ring :as sentry-ring])
   (:import com.zaxxer.hikari.HikariDataSource
            java.util.concurrent.ExecutorService))
@@ -49,6 +51,32 @@
                       {:error/message "Invalid thread pool type"}
                       #(instance? ExecutorService %)]]]}))
 
+(defn- wrap-metrics
+  "Ring middleware that records HTTP request count and duration.
+  Uses try/finally to guarantee metrics are emitted even on uncaught exceptions."
+  [handler]
+  (fn [request]
+    (let [start (System/nanoTime)
+          method (str/upper-case (name (:request-method request)))
+          path (or (:template (:reitit.core/match request))
+                   (:uri request))
+          response (atom nil)]
+      (try
+        (reset! response (handler request))
+        @response
+        (catch Throwable t
+          (throw t))
+        (finally
+          (let [duration-ms (/ (- (System/nanoTime) start) 1e6)
+                status (if @response (str (:status @response)) "500")]
+            (metrics/increment "http.request" 1.0 nil {:method method
+                                                       :path path
+                                                       :status status})
+            (metrics/distribution "http.request_duration" duration-ms :millisecond
+                                  {:method method
+                                   :path path
+                                   :status status})))))))
+
 (defn ring-handler
   "Return main application handler for server-side rendering."
   [{:keys [options]
@@ -74,6 +102,8 @@
                              [server-utils/wrap-context context]
                              ; sentry error reporting
                              sentry-ring/wrap-sentry-tracing
+                             ; http request metrics
+                             wrap-metrics
                              ; parse request parameters
                              ring-parameters/parameters-middleware
                              ; negotiate request and response
