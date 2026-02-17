@@ -4,8 +4,9 @@
         ch.qos.logback/logback-classic {:mvn/version "1.5.32"}
         ; sentry
         io.sentry/sentry {:mvn/version "8.32.0"}
+        ; TODO: bump io.sentry, when it's released with metrics support
         io.sentry/sentry-clj ^:antq/exclude {:git/url "https://github.com/abogoyavlensky/sentry-clj"
-                                             :git/sha "9cea5f704dd9decff470df352bfefc503dce65a9"}
+                                             :git/sha "4e08c7c9b3cc8f95762b083e1420bf42cafb964b"}
         io.sentry/sentry-logback {:mvn/version "8.32.0"}
         ; system & config
         integrant/integrant {:mvn/version "1.0.1"}
