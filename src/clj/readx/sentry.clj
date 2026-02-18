@@ -18,6 +18,8 @@
     (do
       (log/info "[SENTRY] Initialising Sentry...")
       (sentry/init! dsn {:traces-sample-rate 1.0
+                         :profile-session-sample-rate 1.0
+                         :profile-lifecycle :trace
                          :logs-enabled true})
       (log/info "[SENTRY] Sentry initialised successfully.")
       :sentry-initialized)
