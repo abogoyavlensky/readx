@@ -49,6 +49,16 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: bb kamal deploy --version=${{ github.sha }}
 
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          release: "v1.3.4"
+
       - name: Kamal Release
         if: ${{ cancelled() }}
         run: bb kamal lock release
