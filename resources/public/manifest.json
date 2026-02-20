@@ -2,8 +2,10 @@
   "name": "readx",
   "short_name": "readx",
   "start_url": "/",
+  "scope": "/",
   "id": "https://readx.bogoyavlensky.com/",
   "display": "standalone",
+  "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [
     { "src": "/assets/images/icon@192px.png", "type": "image/png", "sizes": "192x192" },

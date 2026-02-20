@@ -98,6 +98,15 @@
 
 (def ^:private DEFAULT-CACHE-365D "public,max-age=31536000,immutable")
 
+(defn- wrap-manifest-no-cache
+  "Ensure manifest.json is never served with long-lived cache so iOS can refresh it."
+  [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (if (str/ends-with? (:uri request) "manifest.json")
+        (response/header response "Cache-Control" "no-cache")
+        response))))
+
 (defn create-resource-handler-cached
   "Return resource handler with optional Cache-Control header."
   [{:keys [cached? cache-control]
@@ -114,7 +123,8 @@
                         response/resource-response)]
       (-> response-fn
           (ring/-create-file-or-resource-handler opts)
-          (gzip/wrap-gzip)))))
+          (gzip/wrap-gzip)
+          wrap-manifest-no-cache))))
 
 (defn- allowed-origin?
   "Check if `origin` is allowed by `allowed-origins` config."
@@ -158,6 +168,12 @@
     [:meta {:charset "UTF-8"}]
     [:meta {:name "viewport"
             :content "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"}]
+    [:meta {:name "apple-mobile-web-app-capable"
+            :content "yes"}]
+    [:meta {:name "apple-mobile-web-app-status-bar-style"
+            :content "default"}]
+    [:meta {:name "apple-mobile-web-app-title"
+            :content "ReadX"}]
     [:meta {:name "msapplication-TileColor"
             :content "#ffffff"}]
     [:link {:rel "manifest"
